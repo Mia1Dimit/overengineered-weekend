@@ -28,6 +28,7 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+.terraform/
 
 # Ignore plan files
 *.tfplan
@@ -45,7 +46,7 @@ terraform.rc
 Thumbs.db
 
 # Terraform lock file (can be committed for consistency)
-# .terraform.lock.hcl
+.terraform.lock.hcl
 
 # Credentials (local reference only, don't commit)
 CREDENTIALS.md
