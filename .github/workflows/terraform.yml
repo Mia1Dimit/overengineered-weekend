@@ -13,20 +13,18 @@ env:
   TF_WORKING_DIR: infra
 
 jobs:
-  terraform:
-    name: Plan ${{ github.ref == 'refs/heads/main' && '+ Apply' || 'only' }}
+  # Job 1: Setup Terraform + AWS
+  setup:
+    name: Setup Terraform & AWS Credentials
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
 
     env:
-      AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_TOKEN_your_registry_hostname: ${{ secrets.TF_REGISTRY_TOKEN }}
 
     steps:
-
       - name: Verify AWS Credentials
         run: |
           if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
@@ -39,7 +37,7 @@ jobs:
             echo "Please add it to Settings → Secrets and variables → Actions"
             exit 1
           fi
-          echo "✅ AWS credentials are configured"
+          echo "✅ AWS credentials verified"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +47,77 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Set environment
+      - name: Verify Terraform version
+        run: terraform --version
+
+  # Job 2: Validate Terraform
+  validate:
+    name: Validate Terraform
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          echo "🔐 Initializing Terraform..."
+          terraform init \
+            -backend-config="key=${{ env.PROJECT_NAME }}/terraform.tfstate"
+          echo "✅ Terraform initialized"
+
+      - name: Terraform Format Check
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          echo "🎨 Checking Terraform formatting..."
+          terraform fmt -check -recursive .
+          echo "✅ Formatting check passed"
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          echo "✔️ Validating Terraform configuration..."
+          terraform validate
+          echo "✅ Validation passed"
+
+  # Job 3: Plan Terraform
+  plan:
+    name: Plan Terraform
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Set Environment
         id: env
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
@@ -59,51 +127,79 @@ jobs:
             echo "tfvars=../environments/dev.tfvars" >> $GITHUB_OUTPUT
             echo "env_name=dev" >> $GITHUB_OUTPUT
           fi
+          echo "Environment: ${{ steps.env.outputs.env_name }}"
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
         run: |
-          echo "🔐 Initializing Terraform with S3 backend..."
-          echo "Region: $AWS_REGION"
           terraform init \
             -backend-config="key=${{ env.PROJECT_NAME }}/${{ steps.env.outputs.env_name }}/terraform.tfstate"
-          echo "✅ Terraform initialized successfully"
-
-      - name: Terraform Format check
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform fmt -check
-
-      - name: Terraform Validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate
 
       - name: Terraform Plan
         id: plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
+          echo "📋 Creating Terraform plan for ${{ steps.env.outputs.env_name }}..."
           terraform plan \
             -var-file="${{ steps.env.outputs.tfvars }}" \
             -out=tfplan \
             -no-color 2>&1 | tee tfplan.txt
           echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+          echo "✅ Plan created successfully"
 
-      - name: Post plan to PR
+      - name: Save Plan Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan-${{ steps.env.outputs.env_name }}
+          path: ${{ env.TF_WORKING_DIR }}/tfplan
+
+  # Job 4: Post Plan & Apply (if approved on main)
+  post-and-apply:
+    name: Post Plan & Apply
+    needs: plan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: tfplan-${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Post Plan to PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const planFile = '${{ env.TF_WORKING_DIR }}/tfplan.txt';
+            const planFile = 'tfplan.txt';
             let plan = 'Plan file not found';
             if (fs.existsSync(planFile)) {
               plan = fs.readFileSync(planFile, 'utf8').slice(0, 65000);
             }
-            const body = `### Terraform Plan — \`${{ steps.env.outputs.env_name }}\`
+            const body = `### 📋 Terraform Plan — \`${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}\`
+
             \`\`\`hcl
             ${plan}
             \`\`\`
+
+            **⚠️ Plan requires manual approval before apply.**
             `;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -112,7 +208,21 @@ jobs:
               body
             });
 
-      - name: Terraform Apply
+      - name: Terraform Apply (Main Branch Only)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -auto-approve tfplan
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
+        run: |
+          echo "🚀 Applying Terraform changes to PRODUCTION..."
+          terraform init \
+            -backend-config="key=${{ env.PROJECT_NAME }}/prod/terraform.tfstate"
+          terraform apply -auto-approve tfplan
+          echo "✅ Apply completed successfully"
+
+      - name: Manual Approval Notice (PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "⏳ Plan posted to PR"
+          echo "📝 Review the plan above"
+          echo "✅ Merge PR to apply changes to production"
