@@ -1,5 +1,5 @@
 module ssm-parameter {
-  source = "../../modules/ssm-parameter"
+  source = "../modules/ssm-parameter"
   for_each = var.ssm_parameters
   name = each["name"]
   type = each["type"]

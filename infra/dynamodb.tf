@@ -1,5 +1,5 @@
 module "dynamodb" {
-  source = "../../modules/dynamodb"
+  source = "../modules/dynamodb"
   for_each = var.dynamodb_tables
 
   name                 = each["name"]

@@ -1,5 +1,5 @@
 module "eventbridge_scheduler" {
-  source = "../../modules/eventbridge-scheduler"
+  source = "../modules/eventbridge-scheduler"
   for_each = var.eventbridge_schedulers
 
   group_name        = each["group_name"]
