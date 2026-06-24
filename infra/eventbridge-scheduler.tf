@@ -2,17 +2,18 @@ module "eventbridge_scheduler" {
   source   = "../modules/eventbridge-scheduler"
   for_each = var.eventbridge_schedulers
 
-  name                      = each["name"]
-  schedule_expression       = each["schedule_expression"]
-  target_arn                = module.lambda_function[each["target_lambda_key"]].arn
-  role_arn                  = aws_iam_role.scheduler_execution.arn
-  input                     = each["input"]
-  flexible_time_window_mode = each["flexible_window_mode"]
-  state                     = each["state"]
+  name                       = each.value.name
+  schedule_expression        = each.value.schedule_expression
+  target_arn                 = module.lambda_function[each.value.target_lambda_key].arn
+  role_arn                   = module.iam_role["scheduler_execution"].arn
+  input                      = each.value.input
+  flexible_time_window_mode  = each.value.flexible_time_window_mode
+  state                      = each.value.state
 
   applicationid   = var.applicationid
   applicationname = var.applicationname
   environment     = var.environment
+  specifictags    = {}
 
-  depends_on = [module.lambda_function]
+  depends_on = [module.lambda_function, module.iam_role]
 }

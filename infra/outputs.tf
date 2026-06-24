@@ -1,3 +1,13 @@
+output "iam_role_arns" {
+  description = "IAM role ARNs"
+  value       = { for k, v in module.iam_role : k => v.arn }
+}
+
+output "iam_role_names" {
+  description = "IAM role names"
+  value       = { for k, v in module.iam_role : k => v.name }
+}
+
 output "dynamodb_table_names" {
   description = "DynamoDB table names"
   value       = { for k, v in module.dynamodb : k => v.name }

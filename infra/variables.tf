@@ -13,6 +13,17 @@ variable "environment" {
   type        = string
 }
 
+variable "iam_roles" {
+  description = "IAM role configurations"
+  type = map(object({
+    name              = string
+    service_principal = string
+    managed_policies  = optional(list(string), [])
+    inline_policies   = optional(map(string), {})
+  }))
+  default = {}
+}
+
 variable "dynamodb_tables" {
   description = "DynamoDB table configurations"
   type = map(object({
@@ -70,8 +81,8 @@ variable "eventbridge_schedulers" {
 variable "cloudwatch_dashboards" {
   description = "CloudWatch Dashboard configurations"
   type = map(object({
-    name = string
-    body = string
+    dashboard_name = string
+    dashboard_body = string
   }))
   default = {}
 }
