@@ -1,5 +1,5 @@
 module "lambda_function" {
-  source = "../modules/lambda-function"
+  source   = "../modules/lambda-function"
   for_each = var.lambda_functions
 
   name                  = each["name"]

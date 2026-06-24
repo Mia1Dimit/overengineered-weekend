@@ -16,13 +16,13 @@ variable "environment" {
 variable "dynamodb_tables" {
   description = "DynamoDB table configurations"
   type = map(object({
-    name         = string
-    billing_mode = string
-    read_capacity = optional(number, 5)
+    name           = string
+    billing_mode   = string
+    read_capacity  = optional(number, 5)
     write_capacity = optional(number, 5)
-    hash_key     = string
-    range_key    = optional(string)
-    ttl_attribute = optional(string)
+    hash_key       = string
+    range_key      = optional(string)
+    ttl_attribute  = optional(string)
   }))
   default = {}
 }
@@ -36,7 +36,7 @@ variable "lambda_functions" {
     timeout               = optional(number, 30)
     memory_size           = optional(number, 128)
     environment_variables = optional(map(string), {})
-    vpc_config            = optional(object({
+    vpc_config = optional(object({
       subnet_ids         = list(string)
       security_group_ids = list(string)
     }))
@@ -57,7 +57,7 @@ variable "sns_topics" {
 variable "eventbridge_schedulers" {
   description = "EventBridge Scheduler configurations"
   type = map(object({
-    group_name        = string
+    group_name         = string
     schedule           = string
     timezone           = optional(string, "UTC")
     flexible_window    = optional(string, "OFF")
@@ -80,10 +80,10 @@ variable "cloudwatch_dashboards" {
 variable "ssm_parameters" {
   description = "SSM Parameter configurations"
   type = map(object({
-    name       = string
-    type       = string
-    value      = string
-    key_id     = optional(string)
+    name   = string
+    type   = string
+    value  = string
+    key_id = optional(string)
   }))
   default = {}
 }

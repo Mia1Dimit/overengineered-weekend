@@ -1,8 +1,8 @@
 module "eventbridge_scheduler" {
-  source = "../modules/eventbridge-scheduler"
+  source   = "../modules/eventbridge-scheduler"
   for_each = var.eventbridge_schedulers
 
-  group_name        = each["group_name"]
+  group_name         = each["group_name"]
   schedule           = each["schedule"]
   timezone           = each["timezone"]
   flexible_window    = each["flexible_window"]
