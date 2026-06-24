@@ -46,3 +46,6 @@ Thumbs.db
 
 # Terraform lock file (can be committed for consistency)
 # .terraform.lock.hcl
+
+# Credentials (local reference only, don't commit)
+CREDENTIALS.md
