@@ -57,13 +57,12 @@ variable "sns_topics" {
 variable "eventbridge_schedulers" {
   description = "EventBridge Scheduler configurations"
   type = map(object({
-    group_name         = string
-    schedule           = string
-    timezone           = optional(string, "UTC")
-    flexible_window    = optional(string, "OFF")
-    max_age_hours      = optional(number, 0)
-    max_retry_attempts = optional(number, 1)
-    max_event_age      = optional(number, 1)
+    name                 = string
+    schedule_expression  = string
+    target_lambda_key    = string # Key of the lambda function to target
+    input                = optional(string)
+    flexible_window_mode = optional(string, "OFF")
+    state                = optional(string, "ENABLED")
   }))
   default = {}
 }

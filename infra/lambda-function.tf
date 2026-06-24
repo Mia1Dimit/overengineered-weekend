@@ -2,7 +2,8 @@ module "lambda_function" {
   source   = "../modules/lambda-function"
   for_each = var.lambda_functions
 
-  name                  = each["name"]
+  function_name         = each["name"]
+  role_arn              = aws_iam_role.lambda_execution.arn
   handler               = each["handler"]
   runtime               = each["runtime"]
   timeout               = each["timeout"]
@@ -10,9 +11,7 @@ module "lambda_function" {
   environment_variables = each["environment_variables"]
   vpc_config            = each["vpc_config"]
 
-  tags = {
-    applicationid   = var.applicationid
-    applicationname = var.applicationname
-    environment     = var.environment
-  }
+  applicationid   = var.applicationid
+  applicationname = var.applicationname
+  environment     = var.environment
 }
