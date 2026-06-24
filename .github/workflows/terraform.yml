@@ -25,7 +25,19 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_TOKEN_your_registry_hostname: ${{ secrets.TF_REGISTRY_TOKEN }}
 
-    steps:
+      - name: Verify AWS Credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ ERROR: AWS_ACCESS_KEY_ID secret is not set!"
+            echo "Please add it to Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "❌ ERROR: AWS_SECRET_ACCESS_KEY secret is not set!"
+            echo "Please add it to Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          echo "✅ AWS credentials are configured"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,9 +60,14 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
+          echo "🔐 Initializing Terraform with S3 backend..."
+          echo "Region: $AWS_REGION"
           terraform init \
             -backend-config="key=${{ env.PROJECT_NAME }}/${{ steps.env.outputs.env_name }}/terraform.tfstate"
+          echo "✅ Terraform initialized successfully"
 
       - name: Terraform Format check
         working-directory: ${{ env.TF_WORKING_DIR }}
