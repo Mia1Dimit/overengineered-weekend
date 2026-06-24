@@ -25,6 +25,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_TOKEN_your_registry_hostname: ${{ secrets.TF_REGISTRY_TOKEN }}
 
+    steps:
+
       - name: Verify AWS Credentials
         run: |
           if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
