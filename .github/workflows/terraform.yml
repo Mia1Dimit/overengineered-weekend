@@ -142,6 +142,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           echo "📋 Creating Terraform plan for ${{ steps.env.outputs.env_name }}..."
+          set -o pipefail
           terraform plan \
             -var-file="${{ steps.env.outputs.tfvars }}" \
             -out=tfplan \
@@ -153,16 +154,51 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tfplan-${{ steps.env.outputs.env_name }}
-          path: ${{ env.TF_WORKING_DIR }}/tfplan
+          path: |
+            ${{ env.TF_WORKING_DIR }}/tfplan
+            ${{ env.TF_WORKING_DIR }}/tfplan.txt
 
-  # Job 4: Post Plan & Apply (if approved on main)
-  post-and-apply:
-    name: Post Plan & Apply
+  # Job 4: Post Plan & Approval
+  post-plan:
+    name: Post Plan to PR
     needs: plan
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     permissions:
       contents: read
-      pull-requests: write
+
+    steps:
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-dev
+          path: .
+
+      - name: Post Plan to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const planFile = 'tfplan.txt';
+            let plan = fs.existsSync(planFile)
+              ? fs.readFileSync(planFile, 'utf8').slice(0, 65000)
+              : 'Plan file not found';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 📋 Terraform Plan — \`dev\`\n\`\`\`hcl\n${plan}\n\`\`\`\n**⚠️ Merge to apply.**`
+            });
+
+  # Job 5: Apply (if approved on main)
+  apply:
+    name: Terraform Apply
+    needs: plan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production          # ← this is the approval gate
+    permissions:
+      contents: read
 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -172,57 +208,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download Plan Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: tfplan-${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Post Plan to PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
         with:
-          script: |
-            const fs = require('fs');
-            const planFile = 'tfplan.txt';
-            let plan = 'Plan file not found';
-            if (fs.existsSync(planFile)) {
-              plan = fs.readFileSync(planFile, 'utf8').slice(0, 65000);
-            }
-            const body = `### 📋 Terraform Plan — \`${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}\`
+          name: tfplan-prod
+          path: ${{ env.TF_WORKING_DIR }}
 
-            \`\`\`hcl
-            ${plan}
-            \`\`\`
-
-            **⚠️ Plan requires manual approval before apply.**
-            `;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body
-            });
-
-      - name: Terraform Apply (Main Branch Only)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
         run: |
-          echo "🚀 Applying Terraform changes to PRODUCTION..."
           terraform init \
             -backend-config="key=${{ env.PROJECT_NAME }}/prod/terraform.tfstate"
-          terraform apply -auto-approve tfplan
-          echo "✅ Apply completed successfully"
-
-      - name: Manual Approval Notice (PR)
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "⏳ Plan posted to PR"
-          echo "📝 Review the plan above"
-          echo "✅ Merge PR to apply changes to production"
+          terraform apply -auto-approve tfplan          
