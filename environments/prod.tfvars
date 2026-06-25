@@ -1,5 +1,4 @@
 # Production environment configuration
-
 applicationid   = "002"
 applicationname = "Sleep Push"
 environment     = "prod"
@@ -7,43 +6,32 @@ environment     = "prod"
 # IAM roles configuration
 iam_roles = {
   lambda_execution = {
-    name              = "sleep-push-prod-lambda-execution"
-    service_principal = "lambda.amazonaws.com"
-    managed_policies = [
-      "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-    ]
-    inline_policies = {
-      sns_publish = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Effect = "Allow"
-            Action = [
-              "sns:Publish"
-            ]
-            Resource = "*"
-          }
-        ]
-      })
+    name               = "sleep-push-prod-lambda-execution"
+    assume_role_policy = "lambda-assume.json"
+    specifictags       = {}
+    policies = {
+      sns_publish = {
+        name   = "sleep-push-prod-sns-publish"
+        policy = "sns-publish.json"
+      }
+    }
+    managed_policies = {
+      basic_execution = {
+        policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      }
     }
   }
   scheduler_execution = {
-    name              = "sleep-push-prod-scheduler-execution"
-    service_principal = "scheduler.amazonaws.com"
-    inline_policies = {
-      invoke_lambda = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Effect = "Allow"
-            Action = [
-              "lambda:InvokeFunction"
-            ]
-            Resource = "*"
-          }
-        ]
-      })
+    name               = "sleep-push-prod-scheduler-execution"
+    assume_role_policy = "scheduler-assume.json"
+    specifictags       = {}
+    policies = {
+      invoke_lambda = {
+        name   = "sleep-push-prod-invoke-lambda"
+        policy = "invoke-lambda.json"
+      }
     }
+    managed_policies = {}
   }
 }
 
