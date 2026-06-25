@@ -13,6 +13,11 @@ variable "environment" {
   description = "Environment Tag"
 }
 
+variable "region" {
+  description = "AWS region"
+  type        = string
+}
+
 variable "applicationid" {
   type        = string
   description = "Application_ID Tag"
