@@ -11,6 +11,7 @@ module "lambda_function" {
   environment_variables = each.value.environment_variables
   vpc_config            = each.value.vpc_config
   source_dir            = each.value.source_dir
+  output_path           = each.value.output_path
 
   applicationid   = var.applicationid
   applicationname = var.applicationname
