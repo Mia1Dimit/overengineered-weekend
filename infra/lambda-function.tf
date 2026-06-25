@@ -10,6 +10,7 @@ module "lambda_function" {
   memory_size           = each.value.memory_size
   environment_variables = each.value.environment_variables
   vpc_config            = each.value.vpc_config
+  source_dir            = each.value.source_dir
 
   applicationid   = var.applicationid
   applicationname = var.applicationname

@@ -1,11 +1,11 @@
 output "iam_role_arns" {
   description = "IAM role ARNs"
-  value       = { for k, v in module.aws-iam-role : k => v.arn }
+  value       = { for k, v in module.aws-iam-role : k => v.iam_role_arn }
 }
 
 output "iam_role_names" {
   description = "IAM role names"
-  value       = { for k, v in module.aws-iam-role : k => v.name }
+  value       = { for k, v in module.aws-iam-role : k => v.iam_role_name }
 }
 
 output "dynamodb_table_names" {
@@ -45,7 +45,7 @@ output "eventbridge_scheduler_arns" {
 
 output "cloudwatch_dashboard_urls" {
   description = "CloudWatch Dashboard URLs"
-  value       = { for k, v in module.cloudwatch_dashboard : k => v.url }
+  value       = { for k, v in module.cloudwatch_dashboard : k => v.dashboard_url }
 }
 
 output "ssm_parameter_arns" {

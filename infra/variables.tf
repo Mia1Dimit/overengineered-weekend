@@ -13,6 +13,11 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  description = "AWS region"
+  type        = string
+}
+
 variable "iam_roles" {
   description = "IAM role configurations"
   type = map(object({
@@ -53,6 +58,7 @@ variable "lambda_functions" {
     timeout               = optional(number, 30)
     memory_size           = optional(number, 128)
     environment_variables = optional(map(string), {})
+    source_dir            = string
     vpc_config = optional(object({
       subnet_ids         = list(string)
       security_group_ids = list(string)

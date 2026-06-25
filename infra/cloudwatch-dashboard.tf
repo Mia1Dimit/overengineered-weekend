@@ -7,6 +7,7 @@ module "cloudwatch_dashboard" {
   applicationid     = var.applicationid
   applicationname   = var.applicationname
   environment       = var.environment
+  region            = var.region
   name              = each.value.name
   specifictags      = {}
 }
