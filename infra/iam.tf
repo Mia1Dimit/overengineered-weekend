@@ -20,7 +20,7 @@ locals {
         for p_key, pol in coalesce(ps.managed_policies, {}) : {
           key = p_key
           value = {
-            role    = module.aws-iam-role[ps_key].iam_role_name
+            role       = module.aws-iam-role[ps_key].iam_role_name
             policy_arn = pol.policy_arn
           }
         }
@@ -36,10 +36,10 @@ module "aws-iam-role" {
   name               = each.value["name"]
   assume_role_policy = file("${path.module}/data/iam_role_policies/${each.value["assume_role_policy"]}")
 
-  specifictags     = each.value["specifictags"]
-  applicationname  = var.applicationname
-  applicationid    = var.applicationid
-  environment      = each.value["environment"]
+  specifictags    = each.value["specifictags"]
+  applicationname = var.applicationname
+  applicationid   = var.applicationid
+  environment     = each.value["environment"]
 }
 
 module "aws-iam-role-policy" {
@@ -55,6 +55,6 @@ module "aws-iam-role-policy-att" {
   for_each = local.managed_policies
   source   = "../modules/iam-role-policy"
 
-  role   = each.value.role
+  role       = each.value.role
   policy_arn = each.value.policy_arn
 }

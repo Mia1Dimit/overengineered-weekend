@@ -3,7 +3,7 @@ module "lambda_function" {
   for_each = var.lambda_functions
 
   function_name         = each.value.name
-  role_arn              = module.iam_role["lambda_execution"].arn
+  role_arn              = module.aws-iam-role["lambda_execution"].iam_role_arn
   handler               = each.value.handler
   runtime               = each.value.runtime
   timeout               = each.value.timeout
@@ -16,5 +16,5 @@ module "lambda_function" {
   environment     = var.environment
   specifictags    = {}
 
-  depends_on = [module.iam_role]
+  depends_on = [module.aws-iam-role]
 }
