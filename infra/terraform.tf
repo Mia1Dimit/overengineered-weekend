@@ -12,7 +12,7 @@ terraform {
 provider "aws" {
   default_tags {
     tags = {
-      managed_by      = "Terraform"
+      managed_by = "Terraform"
     }
   }
 }
