@@ -40,7 +40,7 @@ output "sns_topic_names" {
 
 output "eventbridge_scheduler_arns" {
   description = "EventBridge Scheduler ARNs"
-  value       = { for k, v in module.eventbridge_scheduler : k => v.arn }
+  value       = { for k, v in module.eventbridge_scheduler : k => v.schedule_arn }
 }
 
 output "cloudwatch_dashboard_urls" {
