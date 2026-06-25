@@ -10,10 +10,5 @@ module "eventbridge_scheduler" {
   flexible_time_window_mode = each.value.flexible_time_window_mode
   state                     = each.value.state
 
-  applicationid   = var.applicationid
-  applicationname = var.applicationname
-  environment     = var.environment
-  specifictags    = {}
-
   depends_on = [module.lambda_function, module.aws-iam-role]
 }

@@ -3,7 +3,6 @@ module "dynamodb" {
   for_each = var.dynamodb_tables
 
   table_name         = each.value.name
-  name               = each.value.name
   hash_key           = each.value.hash_key
   range_key          = each.value.range_key
   billing_mode       = each.value.billing_mode
