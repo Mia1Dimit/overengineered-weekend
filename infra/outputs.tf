@@ -10,12 +10,12 @@ output "iam_role_names" {
 
 output "dynamodb_table_names" {
   description = "DynamoDB table names"
-  value       = { for k, v in module.dynamodb : k => v.name }
+  value       = { for k, v in module.dynamodb : k => v.table_name }
 }
 
 output "dynamodb_table_arns" {
   description = "DynamoDB table ARNs"
-  value       = { for k, v in module.dynamodb : k => v.arn }
+  value       = { for k, v in module.dynamodb : k => v.table_arn }
 }
 
 output "lambda_function_arns" {
@@ -30,12 +30,12 @@ output "lambda_function_names" {
 
 output "sns_topic_arns" {
   description = "SNS topic ARNs"
-  value       = { for k, v in module.sns_topic : k => v.arn }
+  value       = { for k, v in module.sns_topic : k => v.topic_arn }
 }
 
 output "sns_topic_names" {
   description = "SNS topic names"
-  value       = { for k, v in module.sns_topic : k => v.name }
+  value       = { for k, v in module.sns_topic : k => v.topic_name }
 }
 
 output "eventbridge_scheduler_arns" {
@@ -50,11 +50,11 @@ output "cloudwatch_dashboard_urls" {
 
 output "ssm_parameter_arns" {
   description = "SSM Parameter ARNs"
-  value       = { for k, v in module.ssm_parameter : k => v.arn }
+  value       = { for k, v in module.ssm_parameter : k => v.parameter_arn }
 }
 
 output "ssm_parameter_values" {
   description = "SSM Parameter values"
-  value       = { for k, v in module.ssm_parameter : k => v.value }
+  value       = { for k, v in module.ssm_parameter : k => v.parameter_name }
   sensitive   = true
 }

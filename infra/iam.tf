@@ -39,7 +39,7 @@ module "aws-iam-role" {
   specifictags    = each.value["specifictags"]
   applicationname = var.applicationname
   applicationid   = var.applicationid
-  environment     = each.value["environment"]
+  environment     = var.environment
 }
 
 module "aws-iam-role-policy" {
