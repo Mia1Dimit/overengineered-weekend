@@ -18,7 +18,6 @@ variable "iam_roles" {
   type = map(object({
     name               = string
     assume_role_policy = string
-    environment        = string
     specifictags       = optional(map(string), {})
     policies = optional(map(object({
       name   = string
@@ -88,7 +87,7 @@ variable "eventbridge_schedulers" {
 variable "cloudwatch_dashboards" {
   description = "CloudWatch Dashboard configurations"
   type = map(object({
-    dashboard_name    = string
+    name    = string
     dashboard_widgets = list(any)
   }))
   default = {}

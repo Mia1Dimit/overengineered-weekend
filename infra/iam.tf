@@ -36,7 +36,7 @@ module "aws-iam-role" {
   name               = each.value["name"]
   assume_role_policy = file("${path.module}/data/iam_role_policies/${each.value["assume_role_policy"]}")
 
-  specifictags    = each.value["specifictags"]
+  specifictags    = {}
   applicationname = var.applicationname
   applicationid   = var.applicationid
   environment     = var.environment
