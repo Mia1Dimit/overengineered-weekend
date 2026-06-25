@@ -94,7 +94,7 @@ variable "eventbridge_schedulers" {
 variable "cloudwatch_dashboards" {
   description = "CloudWatch Dashboard configurations"
   type = map(object({
-    name    = string
+    name              = string
     dashboard_widgets = list(any)
   }))
   default = {}
