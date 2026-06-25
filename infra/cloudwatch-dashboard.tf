@@ -5,5 +5,4 @@ module "cloudwatch_dashboard" {
   dashboard_name    = each.value.dashboard_name
   dashboard_widgets = each.value.dashboard_widgets
   region            = var.region
-  name              = each.value.name
 }
