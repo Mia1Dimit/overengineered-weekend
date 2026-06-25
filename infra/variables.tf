@@ -16,10 +16,17 @@ variable "environment" {
 variable "iam_roles" {
   description = "IAM role configurations"
   type = map(object({
-    name              = string
-    service_principal = string
-    managed_policies  = optional(list(string), [])
-    inline_policies   = optional(map(string), {})
+    name               = string
+    assume_role_policy = string
+    environment        = string
+    specifictags       = optional(map(string), {})
+    policies = optional(map(object({
+      name   = string
+      policy = string
+    })), {})
+    managed_policies = optional(map(object({
+      policy_arn = string
+    })), {})
   }))
   default = {}
 }
