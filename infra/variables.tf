@@ -59,6 +59,7 @@ variable "lambda_functions" {
     memory_size           = optional(number, 128)
     environment_variables = optional(map(string), {})
     source_dir            = string
+    output_path           = string
     vpc_config = optional(object({
       subnet_ids         = list(string)
       security_group_ids = list(string)
