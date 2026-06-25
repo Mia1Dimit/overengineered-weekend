@@ -2,6 +2,7 @@
 applicationid   = "002"
 applicationname = "Sleep Push"
 environment     = "prod"
+region          = "eu-west-1"
 
 # IAM roles configuration
 iam_roles = {
@@ -54,6 +55,7 @@ lambda_functions = {
     runtime     = "python3.11"
     timeout     = 30
     memory_size = 128
+    source_dir  = "lambda_code/"
     environment_variables = {
       NOTIFICATION_MESSAGE = "Go to bed"
       SNS_TOPIC_ARN        = "arn:aws:sns:eu-west-1:577638377042:sleep-push-prod-notifications"
