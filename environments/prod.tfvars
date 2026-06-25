@@ -84,24 +84,22 @@ eventbridge_schedulers = {
 cloudwatch_dashboards = {
   main_dashboard = {
     name = "sleep-push-prod-dashboard"
-    body = jsonencode({
-      widgets = [
-        {
-          type = "metric"
-          properties = {
-            metrics = [
-              ["AWS/Lambda", "Invocations", { stat = "Sum" }],
-              [".", "Errors", { stat = "Sum" }],
-              [".", "Duration", { stat = "Average" }]
-            ]
-            period = 300
-            stat   = "Average"
-            region = "eu-west-1"
-            title  = "Lambda Bedtime Reminder"
-          }
+    dashboard_widgets = [
+      {
+        type = "metric"
+        properties = {
+          metrics = [
+            ["AWS/Lambda", "Invocations", "stat", "Sum"],
+            ["AWS/Lambda", "Errors", "stat", "Sum"],
+            ["AWS/Lambda", "Duration", "stat", "Average"]
+          ]
+          period = 300
+          stat   = "Average"
+          region = "eu-west-1"
+          title  = "Lambda Bedtime Reminder"
         }
-      ]
-    })
+      }
+    ]
   }
 }
 
