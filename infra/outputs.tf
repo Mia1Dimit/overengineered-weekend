@@ -1,11 +1,11 @@
 output "iam_role_arns" {
   description = "IAM role ARNs"
-  value       = { for k, v in module.iam_role : k => v.arn }
+  value       = { for k, v in module.aws-iam-role : k => v.arn }
 }
 
 output "iam_role_names" {
   description = "IAM role names"
-  value       = { for k, v in module.iam_role : k => v.name }
+  value       = { for k, v in module.aws-iam-role : k => v.name }
 }
 
 output "dynamodb_table_names" {

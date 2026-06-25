@@ -39,7 +39,6 @@ module "aws-iam-role" {
   specifictags     = each.value["specifictags"]
   applicationname  = var.applicationname
   applicationid    = var.applicationid
-  applicationgroup = var.applicationgroup
   environment      = each.value["environment"]
 }
 
