@@ -3,9 +3,9 @@ variable "dashboard_name" {
   type        = string
 }
 
-variable "dashboard_body" {
-  description = "Dashboard JSON body. Use jsonencode(...) from the caller for maintainability"
-  type        = string
+variable "dashboard_widgets" {
+  description = "List of widgets for the CloudWatch dashboard"
+  type        = list(any)
 }
 
 variable "environment" {
