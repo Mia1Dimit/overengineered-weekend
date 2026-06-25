@@ -37,9 +37,6 @@ module "aws-iam-role" {
   assume_role_policy = file("${path.module}/data/iam_role_policies/${each.value["assume_role_policy"]}")
 
   specifictags    = {}
-  applicationname = var.applicationname
-  applicationid   = var.applicationid
-  environment     = var.environment
 }
 
 module "aws-iam-role-policy" {
