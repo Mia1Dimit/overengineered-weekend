@@ -75,11 +75,11 @@ sns_topics = {
 # EventBridge schedulers configuration
 eventbridge_schedulers = {
   bedtime_reminder_schedule = {
-    name                 = "sleep-push-prod-bedtime-reminder"
-    schedule_expression  = "cron(0,30 21-23,0-5 ? * * *)" # Every 30 minutes from 21:30 to 05:59
-    target_lambda_key    = "bedtime_reminder"
-    flexible_window_mode = "OFF"
-    state                = "ENABLED"
+    name                      = "sleep-push-prod-bedtime-reminder"
+    schedule_expression       = "cron(0,30 21-23,0-5 ? * * *)" # Every 30 minutes from 21:30 to 05:59
+    target_lambda_key         = "bedtime_reminder"
+    flexible_time_window_mode = "OFF"
+    state                     = "ENABLED"
   }
 }
 

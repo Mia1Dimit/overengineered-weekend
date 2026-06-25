@@ -20,12 +20,12 @@ output "dynamodb_table_arns" {
 
 output "lambda_function_arns" {
   description = "Lambda function ARNs"
-  value       = { for k, v in module.lambda_function : k => v.arn }
+  value       = { for k, v in module.lambda_function : k => v.lambda_function_arn }
 }
 
 output "lambda_function_names" {
   description = "Lambda function names"
-  value       = { for k, v in module.lambda_function : k => v.name }
+  value       = { for k, v in module.lambda_function : k => v.lambda_function_name }
 }
 
 output "sns_topic_arns" {

@@ -81,12 +81,12 @@ variable "sns_topics" {
 variable "eventbridge_schedulers" {
   description = "EventBridge Scheduler configurations"
   type = map(object({
-    name                 = string
-    schedule_expression  = string
-    target_lambda_key    = string # Key of the lambda function to target
-    input                = optional(string)
-    flexible_window_mode = optional(string, "OFF")
-    state                = optional(string, "ENABLED")
+    name                      = string
+    schedule_expression       = string
+    target_lambda_key         = string # Key of the lambda function to target
+    input                     = optional(string)
+    flexible_time_window_mode = optional(string, "OFF")
+    state                     = optional(string, "ENABLED")
   }))
   default = {}
 }
