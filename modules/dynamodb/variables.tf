@@ -24,25 +24,6 @@ variable "range_key" {
   description = "Sort key attribute name"
 }
 
-variable "environment" {
-  type        = string
-  description = "Environment tag (dev, staging, prod)"
-}
-
-variable "applicationid" {
-  type        = string
-  description = "Application ID tag"
-}
-
-variable "applicationname" {
-  type        = string
-  description = "Application name tag"
-}
-
-variable "name" {
-  type        = string
-  description = "Logical name for this table (used in tags)"
-}
 
 # -----------------------------------------------------------------------------
 # Optional Variables (Module Defaults - Generic)
@@ -122,8 +103,33 @@ variable "purpose" {
   default     = "General NoSQL Database"
 }
 
+locals {
+  common_tags = {
+    Application_ID    = var.applicationid
+    Application_Name  = var.applicationname
+    Environment       = var.environment
+    Name              = var.name
+  }
+  merged_tags = merge(local.common_tags, var.specifictags)
+}
+
+
 variable "specifictags" {
   type        = map(string)
-  description = "Specific tags for this resource"
-  default     = {}
+  description = "Specific tags for the resource"
+}
+
+variable "environment" {
+  type        = string
+  description = "Environment Tag"
+}
+
+variable "applicationid" {
+  type        = string
+  description = "Application_ID Tag"
+}
+
+variable "applicationname" {
+  type        = string
+  description = "Application_Name Tag"
 }

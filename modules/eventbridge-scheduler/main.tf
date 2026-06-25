@@ -12,4 +12,6 @@ resource "aws_scheduler_schedule" "scheduler_schedule" {
     role_arn = var.role_arn
     input    = var.input
   }
+
+  tags = local.merged_tags
 }

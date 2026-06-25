@@ -88,15 +88,5 @@ resource "aws_dynamodb_table" "table" {
   stream_view_type = var.stream_enabled ? var.stream_view_type : null
 
   # Tags
-  tags = merge(
-    {
-      Name             = var.name
-      Environment      = var.environment
-      Application_ID   = var.applicationid
-      Application_Name = var.applicationname
-      Module           = "dynamodb"
-      Purpose          = var.purpose
-    },
-    var.specifictags
-  )
+  tags = local.merged_tags
 }

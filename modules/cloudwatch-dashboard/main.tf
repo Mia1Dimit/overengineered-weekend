@@ -3,4 +3,5 @@ resource "aws_cloudwatch_dashboard" "cloudwatch_dashboard" {
   dashboard_body = jsonencode({
     widgets = var.dashboard_widgets
   })
+  tags = local.merged_tags
 }

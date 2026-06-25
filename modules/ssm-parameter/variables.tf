@@ -22,30 +22,34 @@ variable "description" {
   default = null
 }
 
+locals {
+  common_tags = {
+    Application_Group = var.applicationgroup
+    Application_ID    = var.applicationid
+    Application_Name  = var.applicationname
+    Environment       = var.environment
+    Name              = var.name
+  }
+  merged_tags = merge(local.common_tags, var.specifictags)
+}
+
+
+variable "specifictags" {
+  type        = map(string)
+  description = "Specific tags for the resource"
+}
+
 variable "environment" {
-  type = string
+  type        = string
+  description = "Environment Tag"
 }
 
 variable "applicationid" {
-  type = string
+  type        = string
+  description = "Application_ID Tag"
 }
 
 variable "applicationname" {
-  type = string
-}
-
-variable "specifictags" {
-  type    = map(string)
-  default = {}
-}
-
-locals {
-  common_tags = {
-    Application_ID   = var.applicationid
-    Application_Name = var.applicationname
-    Environment      = var.environment
-    Name             = var.name
-    Module           = "ssm-parameter"
-  }
-  merged_tags = merge(local.common_tags, var.specifictags)
+  type        = string
+  description = "Application_Name Tag"
 }

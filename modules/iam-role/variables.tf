@@ -34,6 +34,7 @@ variable "permissions_boundary" {
   type        = string
   default     = null
 }
+
 locals {
   common_tags = {
     Application_ID    = var.applicationid

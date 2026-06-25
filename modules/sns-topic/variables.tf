@@ -73,6 +73,28 @@ variable "signature_version" {
   }
 }
 
+variable "purpose" {
+  type        = string
+  description = "Purpose of the SNS topic"
+  default     = "Notification fan-out"
+}
+
+locals {
+  common_tags = {
+    Application_ID    = var.applicationid
+    Application_Name  = var.applicationname
+    Environment       = var.environment
+    Name              = var.name
+  }
+  merged_tags = merge(local.common_tags, var.specifictags)
+}
+
+
+variable "specifictags" {
+  type        = map(string)
+  description = "Specific tags for the resource"
+}
+
 variable "environment" {
   type        = string
   description = "Environment Tag"
@@ -86,28 +108,4 @@ variable "applicationid" {
 variable "applicationname" {
   type        = string
   description = "Application_Name Tag"
-}
-
-variable "purpose" {
-  type        = string
-  description = "Purpose of the SNS topic"
-  default     = "Notification fan-out"
-}
-
-variable "specifictags" {
-  type        = map(string)
-  description = "Specific tags for the resource"
-  default     = {}
-}
-
-locals {
-  common_tags = {
-    Application_ID   = var.applicationid
-    Application_Name = var.applicationname
-    Environment      = var.environment
-    Name             = var.name
-    Module           = "sns-topic"
-    Purpose          = var.purpose
-  }
-  merged_tags = merge(local.common_tags, var.specifictags)
 }

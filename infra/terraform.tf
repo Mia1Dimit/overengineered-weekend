@@ -12,9 +12,6 @@ terraform {
 provider "aws" {
   default_tags {
     tags = {
-      applicationid   = var.applicationid
-      applicationname = var.applicationname
-      environment     = var.environment
       managed_by      = "Terraform"
     }
   }
